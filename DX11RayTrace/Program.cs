@@ -5,5 +5,5 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-Renderer.initWindow();
+Renderer.initWindow(800, 600);
 

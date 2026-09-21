@@ -70,9 +70,9 @@ public static class Renderer
     static ComPtr<ID3D11InputLayout> inputLayout = default;
 
 
-    public static void initWindow()
+    public static void initWindow( int screenW, int ScreenH)
     {
-        options.Size = new Vector2D<int>(800, 600);
+        options.Size = new Vector2D<int>(screenW, ScreenH);
         options.Title = "RaytTracer(DX11)";
         options.API = GraphicsAPI.None; // <-- This bit is important, as your window will be configured for OpenGL by default
         // Assign events.
