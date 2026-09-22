@@ -22,10 +22,11 @@ public static class Renderer
 
 
     [StructLayout(LayoutKind.Sequential)]
-    struct ScreenParams
+    public struct ShaderParams
     {
-        public Vector2 screenSize;
-        public Vector2 Padding;
+        public Vector3 Pixel00;
+        public Vector3 pixelDeltaU;
+        public Vector3 pixelDeltaV;
     }
 
     static float[] vertices =
@@ -41,10 +42,10 @@ public static class Renderer
     {
             0, 1, 3,
             1, 2, 3,
-        };
+    };
 
     static uint vertexStride = 3U * sizeof(float);
-    static ScreenParams frameData = new ScreenParams();
+    static ShaderParams frameData = new ShaderParams();
     static uint vertexOffset = 0U;
 
     static string PShaderSource = File.ReadAllText(@"../../../shaders/frag.hlsl");
@@ -70,11 +71,13 @@ public static class Renderer
     static ComPtr<ID3D11InputLayout> inputLayout = default;
 
 
-    public static void initWindow( int screenW, int ScreenH)
+    public static void initWindow(int screenW, int screenH, ShaderParams ShaderDat)
     {
-        options.Size = new Vector2D<int>(screenW, ScreenH);
+        window.Size = new Vector2D<int>(screenW, screenH);
+        options.Size = new Vector2D<int>(screenW, screenH);
         options.Title = "RaytTracer(DX11)";
         options.API = GraphicsAPI.None; // <-- This bit is important, as your window will be configured for OpenGL by default
+        frameData = ShaderDat;
         // Assign events.
         window.Load += OnLoad;
         window.Update += OnUpdate;
@@ -247,7 +250,7 @@ public static class Renderer
         //Create screen data buffer
         var SDbufferDat = new BufferDesc
         {
-            ByteWidth = (uint)sizeof(ScreenParams),
+            ByteWidth = (uint)sizeof(ShaderParams),
             Usage = Usage.Dynamic,                         // updated every frame from the CPU
             BindFlags = (uint)BindFlag.ConstantBuffer,
             CPUAccessFlags = (uint)CpuAccessFlag.Write
@@ -420,11 +423,11 @@ public static class Renderer
         deviceContext.VSSetShader(vertexShader, ref Unsafe.NullRef<ComPtr<ID3D11ClassInstance>>(), 0);
         deviceContext.PSSetShader(pixelShader, ref Unsafe.NullRef<ComPtr<ID3D11ClassInstance>>(), 0);
 
-        frameData.screenSize = new Vector2(window.Size.X * 0.8f, window.Size.Y);
+        //frameData.screenSize = new Vector2(window.Size.X * 0.8f, window.Size.Y);
 
         MappedSubresource mapped = default;
         SilkMarshal.ThrowHResult(deviceContext.Map(constantBuffer, 0, Map.WriteDiscard, 0, ref mapped));
-        *(ScreenParams*)mapped.PData = frameData;
+        *(ShaderParams*)mapped.PData = frameData;
         deviceContext.Unmap(constantBuffer, 0);
 
         deviceContext.PSSetConstantBuffers(0, 1, ref constantBuffer);

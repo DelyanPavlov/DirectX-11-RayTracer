@@ -29,6 +29,7 @@ namespace DX11RayTrace
 
             ImGui.Begin("Ray Trace Settings", ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
             ImGui.Text("Render Data: " + Environment.NewLine + $"Width: {(int)(window.Size.X * 0.8f)} " + Environment.NewLine +$"Height: {window.Size.Y}");
+            ImGui.Text($"{(int)(1000 / deltaSeconds)} FPS");
             ImGui.End();
 
             ImGui.Render();
